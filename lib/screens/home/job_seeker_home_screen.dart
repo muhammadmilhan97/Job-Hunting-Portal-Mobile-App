@@ -7,6 +7,7 @@ import '../../widgets/custom_text_field.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../auth/login_screen.dart';
+import 'job_seeker_profile_screen.dart';
 
 class JobSeekerHomeScreen extends StatefulWidget {
   const JobSeekerHomeScreen({super.key});
@@ -175,6 +176,17 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: Icon(Icons.person, color: kPrimaryTextColor),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const JobSeekerProfileScreen(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: Icon(Icons.logout, color: kPrimaryTextColor),
             onPressed: () async {
