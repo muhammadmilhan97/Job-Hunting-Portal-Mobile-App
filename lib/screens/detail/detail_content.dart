@@ -29,37 +29,53 @@ class DetailContent extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(height: kSpacingUnit * 5),
-              Center(
-                child: Column(
-                  children: [
-                    SvgPicture.asset(data.imgUrl, height: 50.sp, width: 50.sp),
-                    SizedBox(height: kSpacingUnit * 2),
-                    Text(data.companyName, style: kTitleTextStyle),
-                    SizedBox(height: kSpacingUnit),
-                    Text(data.location, style: kCaptionTextStyle),
-                  ],
-                ),
-              ),
-              SizedBox(height: kSpacingUnit * 5),
               Text('Responsibilities', style: kSubTitleTextStyle),
               SizedBox(height: kSpacingUnit * 2),
               if (data.responsibilities.isNotEmpty)
-                ...data.responsibilities.asMap().entries.map(
-                  (entry) => DetailItem(
-                    key: ValueKey('res-${entry.key}'),
-                    value: entry.value,
-                  ),
-                ),
+                (data.responsibilities.length == 1)
+                    ? Text(data.responsibilities.first, style: kBodyTextStyle)
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: data.responsibilities
+                            .asMap()
+                            .entries
+                            .map(
+                              (entry) => Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('• ', style: kBodyTextStyle),
+                                  Expanded(
+                                      child: Text(entry.value,
+                                          style: kBodyTextStyle)),
+                                ],
+                              ),
+                            )
+                            .toList(),
+                      ),
               SizedBox(height: kSpacingUnit),
               Text('Qualifications', style: kSubTitleTextStyle),
               SizedBox(height: kSpacingUnit * 2),
               if (data.qualifications.isNotEmpty)
-                ...data.qualifications.asMap().entries.map(
-                  (entry) => DetailItem(
-                    key: ValueKey('qual-${entry.key}'),
-                    value: entry.value,
-                  ),
-                ),
+                (data.qualifications.length == 1)
+                    ? Text(data.qualifications.first, style: kBodyTextStyle)
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: data.qualifications
+                            .asMap()
+                            .entries
+                            .map(
+                              (entry) => Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('• ', style: kBodyTextStyle),
+                                  Expanded(
+                                      child: Text(entry.value,
+                                          style: kBodyTextStyle)),
+                                ],
+                              ),
+                            )
+                            .toList(),
+                      ),
               SizedBox(height: kSpacingUnit * 15),
             ],
           ),

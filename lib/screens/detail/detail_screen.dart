@@ -22,7 +22,7 @@ class DetailScreen extends StatelessWidget {
                 DetailContent(key: UniqueKey(), data: data),
               ],
             ),
-            DetailFooter(),
+            DetailFooter(job: data),
           ],
         ),
       ),

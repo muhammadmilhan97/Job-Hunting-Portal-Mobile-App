@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../constants.dart';
-import '../../models/job_model.dart';
+import '../../models/job.dart';
 import '../../widgets/custom_text_field.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../auth/login_screen.dart';
 import 'job_seeker_profile_screen.dart';
+import '../../screens/detail/detail_screen.dart';
+import 'job_seeker_applications_screen.dart';
 
 class JobSeekerHomeScreen extends StatefulWidget {
   const JobSeekerHomeScreen({super.key});
@@ -71,7 +73,12 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
       elevation: 0,
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to job details
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DetailScreen(data: Job.fromMap(job)),
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(12.r),
         child: Padding(
@@ -214,13 +221,30 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Welcome back,',
-                    style: kBodyTextStyle.copyWith(color: kSecondaryTextColor),
+                    'Welcome, $userName!',
+                    style: kTitleTextStyle.copyWith(fontSize: 22.sp),
                   ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    userName,
-                    style: kHeadingTextStyle,
+                  SizedBox(height: 12.h),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.assignment_turned_in_outlined),
+                    label: const Text('My Applications'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kAccentColor,
+                      foregroundColor: Colors.white,
+                      minimumSize: Size(double.infinity, 48.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const JobSeekerApplicationsScreen(),
+                        ),
+                      );
+                    },
                   ),
                   SizedBox(height: 16.h),
                   // Search Bar

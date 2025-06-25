@@ -72,13 +72,14 @@ class _JobPostingFormScreenState extends State<JobPostingFormScreen> {
         final user = FirebaseAuth.instance.currentUser;
         if (user == null) throw Exception('Not authenticated');
 
-        // Get user profile to get company name
+        // Get user profile to get company name and companyLogo
         final userDoc = await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
             .get();
         final userData = userDoc.data() as Map<String, dynamic>;
         final companyName = userData['profileData']?['companyName'] ?? '';
+        final companyLogoUrl = userData['profileData']?['companyLogo'] ?? '';
 
         final Map<String, dynamic> jobData = {
           'title': _titleController.text.trim(),
@@ -93,6 +94,7 @@ class _JobPostingFormScreenState extends State<JobPostingFormScreen> {
           'type': _selectedType,
           'postedBy': user.uid,
           'company': companyName,
+          'companyLogoUrl': companyLogoUrl,
           'timestamp': FieldValue.serverTimestamp(),
         };
 

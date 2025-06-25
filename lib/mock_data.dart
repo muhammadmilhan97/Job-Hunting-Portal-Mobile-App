@@ -27,6 +27,8 @@ final popularJobs = [
     responsibilities: responsibilities,
     qualifications: qualifications,
     type: '',
+    postedBy: 'mockEmployerId1',
+    companyLogoUrl: 'assets/icons/airbnb_logo.svg',
   ),
   Job(
     id: 2,
@@ -37,6 +39,8 @@ final popularJobs = [
     responsibilities: responsibilities,
     qualifications: qualifications,
     type: '',
+    postedBy: 'mockEmployerId1',
+    companyLogoUrl: 'assets/icons/airbnb_logo.svg',
   ),
   Job(
     id: 3,
@@ -47,6 +51,8 @@ final popularJobs = [
     responsibilities: responsibilities,
     qualifications: qualifications,
     type: "",
+    postedBy: 'mockEmployerId2',
+    companyLogoUrl: 'assets/icons/google_logo.svg',
   ),
 ];
 
@@ -60,6 +66,8 @@ final recentJobs = [
     responsibilities: responsibilities,
     qualifications: qualifications,
     type: '',
+    postedBy: 'mockEmployerId2',
+    companyLogoUrl: 'assets/icons/google_logo.svg',
   ),
   Job(
     id: 5,
@@ -70,6 +78,8 @@ final recentJobs = [
     responsibilities: responsibilities,
     qualifications: qualifications,
     type: '',
+    postedBy: 'mockEmployerId3',
+    companyLogoUrl: 'assets/icons/apple_logo.svg',
   ),
   Job(
     id: 6,
@@ -80,5 +90,7 @@ final recentJobs = [
     responsibilities: responsibilities,
     qualifications: qualifications,
     type: '',
+    postedBy: 'mockEmployerId2',
+    companyLogoUrl: 'assets/icons/google_logo.svg',
   ),
 ];

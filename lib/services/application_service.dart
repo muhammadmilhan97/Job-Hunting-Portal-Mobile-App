@@ -1,5 +1,3 @@
-// Temporarily commented out until Firebase is properly configured
-/*
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
@@ -15,6 +13,9 @@ class ApplicationService {
     required String cvUrl,
     required String expectedSalary,
     required String experience,
+    required String employerId,
+    required String userName,
+    required String jobTitle,
     String? coverLetter,
   }) async {
     try {
@@ -28,6 +29,9 @@ class ApplicationService {
         'status': 'pending',
         'appliedAt': DateTime.now().toIso8601String(),
         'updatedAt': DateTime.now().toIso8601String(),
+        'employerId': employerId,
+        'userName': userName,
+        'jobTitle': jobTitle,
       });
     } catch (e) {
       rethrow;
@@ -38,8 +42,8 @@ class ApplicationService {
   Future<String> uploadCV(File file, String userId) async {
     try {
       final ref = _storage.ref().child(
-        'cvs/$userId/${DateTime.now().millisecondsSinceEpoch}.pdf',
-      );
+            'cvs/$userId/${DateTime.now().millisecondsSinceEpoch}.pdf',
+          );
       await ref.putFile(file);
       return await ref.getDownloadURL();
     } catch (e) {
@@ -101,4 +105,3 @@ class ApplicationService {
     }
   }
 }
-*/
