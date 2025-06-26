@@ -1,4 +1,5 @@
 class Job {
+  final String docId; // Firestore document ID
   final int id;
   final String companyName;
   final String imgUrl;
@@ -11,6 +12,7 @@ class Job {
   final String companyLogoUrl;
 
   Job({
+    required this.docId,
     required this.id,
     required this.companyName,
     required this.imgUrl,
@@ -23,8 +25,9 @@ class Job {
     required this.companyLogoUrl,
   });
 
-  factory Job.fromMap(Map<String, dynamic> map) {
+  factory Job.fromMap(Map<String, dynamic> map, String docId) {
     return Job(
+      docId: docId,
       id: map['id'] is int
           ? map['id']
           : int.tryParse(map['id']?.toString() ?? '') ?? 0,

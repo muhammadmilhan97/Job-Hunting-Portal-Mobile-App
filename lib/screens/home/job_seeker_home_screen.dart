@@ -76,7 +76,8 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => DetailScreen(data: Job.fromMap(job)),
+              builder: (context) =>
+                  DetailScreen(data: Job.fromMap(job, job['docId'] ?? '')),
             ),
           );
         },
@@ -338,6 +339,7 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
                             itemBuilder: (context, index) {
                               final job =
                                   jobs[index].data() as Map<String, dynamic>;
+                              job['docId'] = jobs[index].id;
                               return _buildJobCard(job);
                             },
                           );

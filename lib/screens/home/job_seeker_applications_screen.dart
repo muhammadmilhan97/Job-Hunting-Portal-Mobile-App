@@ -60,8 +60,7 @@ class JobSeekerApplicationsScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final data = docs[index].data() as Map<String, dynamic>;
                     final jobTitle = data['jobTitle'] ?? 'Unknown Job';
-                    final companyName =
-                        data['companyName'] ?? 'Unknown Company';
+                    final jobId = data['jobId'];
                     final status = data['status'] ?? 'pending';
                     final appliedAt = data['appliedAt'];
                     String dateStr = '';
@@ -69,39 +68,104 @@ class JobSeekerApplicationsScreen extends StatelessWidget {
                       final dt = appliedAt.toDate();
                       dateStr = '${dt.day}/${dt.month}/${dt.year}';
                     }
+                    // Defensive: If jobId is null or empty, just show Unknown Company
+                    if (jobId == null || (jobId is String && jobId.isEmpty)) {
+                      return Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          leading: const Icon(Icons.work_outline, size: 32),
+                          title: Text(jobTitle,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Unknown Company'),
+                              if (dateStr.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4.0),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.calendar_today,
+                                          size: 14, color: Colors.grey),
+                                      SizedBox(width: 4),
+                                      Text('Applied: $dateStr',
+                                          style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey)),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                          trailing: _StatusChip(status: status),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                        ),
+                      );
+                    }
+                    // Otherwise, use FutureBuilder as before
                     return Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: ListTile(
-                        leading: const Icon(Icons.work_outline, size: 32),
-                        title: Text(jobTitle,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(companyName),
-                            if (dateStr.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4.0),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.calendar_today,
-                                        size: 14, color: Colors.grey),
-                                    SizedBox(width: 4),
-                                    Text('Applied: $dateStr',
-                                        style: const TextStyle(
-                                            fontSize: 12, color: Colors.grey)),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                        trailing: _StatusChip(status: status),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
+                      child: FutureBuilder<DocumentSnapshot>(
+                        future: FirebaseFirestore.instance
+                            .collection('jobs')
+                            .doc(jobId)
+                            .get(),
+                        builder: (context, jobSnapshot) {
+                          String companyName = 'Unknown Company';
+                          if (jobSnapshot.hasData &&
+                              jobSnapshot.data != null &&
+                              jobSnapshot.data!.exists) {
+                            final jobData = jobSnapshot.data!.data()
+                                as Map<String, dynamic>?;
+                            if (jobData != null) {
+                              if (jobData['companyName'] != null) {
+                                companyName = jobData['companyName'];
+                              } else if (jobData['company'] != null) {
+                                companyName = jobData['company'];
+                              }
+                            }
+                          } else if (data['companyName'] != null) {
+                            companyName = data['companyName'];
+                          }
+                          return ListTile(
+                            leading: const Icon(Icons.work_outline, size: 32),
+                            title: Text(jobTitle,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(companyName),
+                                if (dateStr.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4.0),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.calendar_today,
+                                            size: 14, color: Colors.grey),
+                                        SizedBox(width: 4),
+                                        Text('Applied: $dateStr',
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey)),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            trailing: _StatusChip(status: status),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                          );
+                        },
                       ),
                     );
                   },

@@ -19,6 +19,7 @@ final qualifications = [
 
 final popularJobs = [
   Job(
+    docId: 'mock1',
     id: 1,
     companyName: 'Airbnb, Inc.',
     imgUrl: 'assets/icons/airbnb_logo.svg',
@@ -31,6 +32,7 @@ final popularJobs = [
     companyLogoUrl: 'assets/icons/airbnb_logo.svg',
   ),
   Job(
+    docId: 'mock2',
     id: 2,
     companyName: 'Airbnb, Inc.',
     imgUrl: 'assets/icons/airbnb_logo.svg',
@@ -43,6 +45,7 @@ final popularJobs = [
     companyLogoUrl: 'assets/icons/airbnb_logo.svg',
   ),
   Job(
+    docId: 'mock3',
     id: 3,
     companyName: 'Google LLC',
     imgUrl: 'assets/icons/google_logo.svg',
@@ -58,6 +61,7 @@ final popularJobs = [
 
 final recentJobs = [
   Job(
+    docId: 'mock4',
     id: 4,
     companyName: 'Google LLC',
     imgUrl: 'assets/icons/google_logo.svg',
@@ -70,6 +74,7 @@ final recentJobs = [
     companyLogoUrl: 'assets/icons/google_logo.svg',
   ),
   Job(
+    docId: 'mock5',
     id: 5,
     companyName: 'Apple Inc.',
     imgUrl: 'assets/icons/apple_logo.svg',
@@ -82,6 +87,7 @@ final recentJobs = [
     companyLogoUrl: 'assets/icons/apple_logo.svg',
   ),
   Job(
+    docId: 'mock6',
     id: 6,
     companyName: 'Google LLC',
     imgUrl: 'assets/icons/google_logo.svg',

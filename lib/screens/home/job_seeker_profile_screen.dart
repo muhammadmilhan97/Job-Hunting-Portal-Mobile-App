@@ -225,6 +225,63 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                           }
                         },
                       ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        tooltip: 'Delete CV',
+                        onPressed: _isLoading
+                            ? null
+                            : () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Delete CV'),
+                                    content: const Text(
+                                        'Are you sure you want to delete your CV?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(true),
+                                        child: const Text('Delete',
+                                            style:
+                                                TextStyle(color: Colors.red)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm != true) return;
+                                setState(() => _isLoading = true);
+                                try {
+                                  await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(_uid)
+                                      .update({
+                                    'profileData.cvUrl': FieldValue.delete(),
+                                  });
+                                  setState(() {
+                                    _cvUrl = null;
+                                    _isLoading = false;
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content:
+                                            Text('CV deleted successfully.')),
+                                  );
+                                } catch (e) {
+                                  setState(() => _isLoading = false);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content:
+                                            Text('Failed to delete CV: $e')),
+                                  );
+                                }
+                                await _loadProfile();
+                              },
+                      ),
                     ]
                   ],
                 ),

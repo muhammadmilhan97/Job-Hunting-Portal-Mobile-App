@@ -28,6 +28,22 @@ class _DetailFooterState extends State<DetailFooter> {
       return;
     }
     final cvUrl = user.profileData['cvUrl'] ?? '';
+    if (cvUrl.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'Please complete your profile and upload your CV before applying.')),
+      );
+      return;
+    }
+    if (widget.job.docId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text('Job information is missing. Please try again later.')),
+      );
+      return;
+    }
     final expectedSalary = user.expectedSalary ?? '';
     final experience = user.experience ?? '';
     final employerId = widget.job.postedBy ?? '';
@@ -38,7 +54,7 @@ class _DetailFooterState extends State<DetailFooter> {
     setState(() => _isLoading = true);
     try {
       await ApplicationService().submitApplication(
-        jobId: widget.job.id.toString(),
+        jobId: widget.job.docId,
         userId: user.uid,
         cvUrl: cvUrl,
         expectedSalary: expectedSalary,
