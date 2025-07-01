@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'screens/auth/login_screen.dart';
 import 'providers/auth_provider.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 // import 'services/notification_service.dart';
 
 void main() async {
@@ -56,9 +57,71 @@ class MyApp extends StatelessWidget {
               ),
             ),
             home: const LoginScreen(),
+            builder: (context, appChild) =>
+                ConnectivityBanner(child: appChild ?? SizedBox()),
           );
         },
       ),
+    );
+  }
+}
+
+class ConnectivityBanner extends StatefulWidget {
+  final Widget child;
+  const ConnectivityBanner({required this.child, Key? key}) : super(key: key);
+
+  @override
+  State<ConnectivityBanner> createState() => _ConnectivityBannerState();
+}
+
+class _ConnectivityBannerState extends State<ConnectivityBanner> {
+  bool _isOffline = false;
+  late final Connectivity _connectivity;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectivity = Connectivity();
+    _connectivity.checkConnectivity().then((results) {
+      _updateStatus(results);
+    });
+    _connectivity.onConnectivityChanged.listen((results) {
+      _updateStatus(results);
+    });
+  }
+
+  void _updateStatus(List<ConnectivityResult> results) {
+    setState(() {
+      _isOffline = results.every((result) => result == ConnectivityResult.none);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        widget.child,
+        if (_isOffline)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Colors.red,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: SafeArea(
+                bottom: false,
+                child: Center(
+                  child: Text(
+                    'No Internet Connection',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

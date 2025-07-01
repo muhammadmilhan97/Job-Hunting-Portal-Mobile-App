@@ -13,6 +13,7 @@ class CustomTextField extends StatefulWidget {
   final int? maxLines;
   final int? maxLength;
   final void Function(String)? onChanged;
+  final bool readOnly;
 
   const CustomTextField({
     super.key,
@@ -26,6 +27,7 @@ class CustomTextField extends StatefulWidget {
     this.maxLines = 1,
     this.maxLength,
     this.onChanged,
+    this.readOnly = false,
   });
 
   @override
@@ -97,6 +99,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       ),
+      readOnly: widget.readOnly,
     );
   }
 }

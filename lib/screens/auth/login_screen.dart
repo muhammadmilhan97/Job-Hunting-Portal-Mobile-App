@@ -109,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
-        debugPrint('Login successful for user: ${userCredential.user?.uid}');
+        debugPrint('Login successful for user: \\${userCredential.user?.uid}');
         await _authService
             .getUserProfile(userCredential.user!.uid)
             .then((userProfile) {
@@ -118,19 +118,13 @@ class _LoginScreenState extends State<LoginScreen> {
           debugPrint('Detected userType: ' + (userProfile?.userType ?? 'null'));
           setState(() => _isLoading = false);
           if (mounted) {
-            if (userProfile != null && userProfile.userType == 'employer') {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const EmployerDashboardScreen()),
+            if (userProfile == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('User profile not found.')),
               );
-            } else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const JobSeekerHomeScreen()),
-              );
+              return;
             }
+            _navigateToDashboard(userProfile.userType);
           }
         });
       } catch (e) {
@@ -152,6 +146,27 @@ class _LoginScreenState extends State<LoginScreen> {
           SnackBar(content: Text(errorMessage)),
         );
       }
+    }
+  }
+
+  void _navigateToDashboard(String? userType) {
+    if (userType == 'employer') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const EmployerDashboardScreen()),
+      );
+    } else if (userType == 'admin') {
+      // TODO: Implement AdminDashboardScreen if needed
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Admin dashboard not implemented.')),
+      );
+    } else {
+      // Default to job seeker
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const JobSeekerHomeScreen()),
+      );
     }
   }
 

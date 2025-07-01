@@ -53,6 +53,7 @@ dependencies:
   http: 1.1.0
   crypto: ^3.0.3
   url_launcher: ^6.2.6
+  connectivity_plus: ^6.1.4
 
 dev_dependencies:
   flutter_lints: ^6.0.0

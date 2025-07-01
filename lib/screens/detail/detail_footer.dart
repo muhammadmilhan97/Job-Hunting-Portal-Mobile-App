@@ -201,12 +201,30 @@ class _DetailFooterState extends State<DetailFooter> {
                 SizedBox(width: kSpacingUnit * 2),
                 Expanded(
                   child: GestureDetector(
-                    onTap: _isLoading ? null : () => _applyForJob(context),
+                    onTap: () {
+                      if (_isLoading) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please wait...')),
+                        );
+                        return;
+                      }
+                      if (_hasApplied) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  'You have already applied for this job.')),
+                        );
+                        return;
+                      }
+                      _applyForJob(context);
+                    },
                     child: Container(
                       height: kSpacingUnit * 6,
                       width: kSpacingUnit * 8,
                       decoration: BoxDecoration(
-                        color: _hasApplied ? Colors.grey : kAccentColor,
+                        color: _hasApplied || _isLoading
+                            ? Colors.grey
+                            : kAccentColor,
                         borderRadius: BorderRadius.circular(kSpacingUnit * 3),
                       ),
                       child: Center(

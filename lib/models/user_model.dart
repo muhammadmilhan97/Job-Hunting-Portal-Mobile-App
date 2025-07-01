@@ -59,6 +59,32 @@ class UserModel {
   String? get companyAddress => profileData['companyAddress'];
   String? get contactNumber => profileData['contactNumber'];
 
+  String? get profileImageUrl => profileData['profile_image_url'];
+  String? get phone => profileData['phone'];
+  String? get education => profileData['education'];
+  String? get bio => profileData['bio'];
+  List<String> get skills {
+    final raw = profileData['skills'];
+    if (raw is List) {
+      return raw.map((e) => e.toString()).toList();
+    }
+    return [];
+  }
+
+  int? get experienceInt {
+    final val = profileData['experience'];
+    if (val is int) return val;
+    if (val is String) return int.tryParse(val);
+    return null;
+  }
+
+  int? get expectedSalaryInt {
+    final val = profileData['expectedSalary'];
+    if (val is int) return val;
+    if (val is String) return int.tryParse(val);
+    return null;
+  }
+
   UserModel copyWith({
     String? uid,
     String? email,

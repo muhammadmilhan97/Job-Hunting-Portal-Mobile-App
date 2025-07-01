@@ -80,6 +80,7 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
       future: _getFavoriteStatus(job['docId']),
       builder: (context, snapshot) {
         final isFavorited = snapshot.data ?? false;
+        final String logoUrl = job['companyLogoUrl'] ?? job['imgUrl'] ?? '';
 
         return Card(
           margin: EdgeInsets.only(bottom: 16.h),
@@ -113,7 +114,26 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
                           color: kAccentColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8.r),
                         ),
-                        child: Icon(Icons.work, color: kAccentColor),
+                        child: logoUrl.isNotEmpty
+                            ? (logoUrl.endsWith('.svg')
+                                ? Padding(
+                                    padding: EdgeInsets.all(6.w),
+                                    child: SvgPicture.network(
+                                      logoUrl,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  )
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    child: Image.network(
+                                      logoUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error,
+                                              stackTrace) =>
+                                          Icon(Icons.work, color: kAccentColor),
+                                    ),
+                                  ))
+                            : Icon(Icons.work, color: kAccentColor),
                       ),
                       SizedBox(width: 12.w),
                       Expanded(
