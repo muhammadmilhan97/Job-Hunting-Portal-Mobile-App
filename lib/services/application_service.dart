@@ -104,4 +104,19 @@ class ApplicationService {
       rethrow;
     }
   }
+
+  // Check if user has already applied for a job
+  Future<bool> hasUserApplied(String userId, String jobId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('applications')
+          .where('userId', isEqualTo: userId)
+          .where('jobId', isEqualTo: jobId)
+          .get();
+
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

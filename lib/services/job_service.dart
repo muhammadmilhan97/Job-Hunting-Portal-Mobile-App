@@ -1,7 +1,5 @@
-// Temporarily commented out until Firebase is properly configured
-/*
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:job_listing_app/models/job_model.dart';
+import '../models/job.dart';
 
 class JobService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -27,7 +25,7 @@ class JobService {
         'salary': salary,
         'type': type,
         'employerId': employerId,
-        'createdAt': FieldValue.serverTimestamp(),
+        'timestamp': FieldValue.serverTimestamp(),
         'status': 'active',
       });
     } catch (e) {
@@ -36,46 +34,46 @@ class JobService {
   }
 
   // Get all active jobs
-  Stream<List<JobModel>> getActiveJobs() {
+  Stream<List<Job>> getActiveJobs() {
     return _firestore
         .collection('jobs')
-        .where('isActive', isEqualTo: true)
-        .orderBy('postedAt', descending: true)
+        .where('status', isEqualTo: 'active')
+        .orderBy('timestamp', descending: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => JobModel.fromMap(doc.data()))
-              .toList();
-        });
+      return snapshot.docs
+          .map((doc) => Job.fromMap(doc.data(), doc.id))
+          .toList();
+    });
   }
 
   // Get jobs by category
-  Stream<List<JobModel>> getJobsByCategory(String category) {
+  Stream<List<Job>> getJobsByCategory(String category) {
     return _firestore
         .collection('jobs')
-        .where('category', isEqualTo: category)
-        .where('isActive', isEqualTo: true)
-        .orderBy('postedAt', descending: true)
+        .where('type', isEqualTo: category)
+        .where('status', isEqualTo: 'active')
+        .orderBy('timestamp', descending: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => JobModel.fromMap(doc.data()))
-              .toList();
-        });
+      return snapshot.docs
+          .map((doc) => Job.fromMap(doc.data(), doc.id))
+          .toList();
+    });
   }
 
   // Get jobs by employer
-  Stream<List<JobModel>> getJobsByEmployer(String employerId) {
+  Stream<List<Job>> getJobsByEmployer(String employerId) {
     return _firestore
         .collection('jobs')
         .where('employerId', isEqualTo: employerId)
-        .orderBy('postedAt', descending: true)
+        .orderBy('timestamp', descending: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => JobModel.fromMap(doc.data()))
-              .toList();
-        });
+      return snapshot.docs
+          .map((doc) => Job.fromMap(doc.data(), doc.id))
+          .toList();
+    });
   }
 
   // Update job posting
@@ -100,33 +98,27 @@ class JobService {
   }
 
   // Search jobs
-  Stream<List<JobModel>> searchJobs(String query) {
+  Stream<List<Job>> searchJobs(String query) {
     return _firestore
         .collection('jobs')
-        .where('isActive', isEqualTo: true)
+        .where('status', isEqualTo: 'active')
         .orderBy('title')
         .startAt([query])
         .endAt([query + '\uf8ff'])
         .snapshots()
         .map((snapshot) {
           return snapshot.docs
-              .map((doc) => JobModel.fromMap(doc.data()))
+              .map((doc) => Job.fromMap(doc.data(), doc.id))
               .toList();
         });
   }
 
   // Get job by ID
-  Future<JobModel?> getJobById(String jobId) async {
+  Future<DocumentSnapshot> getJobById(String jobId) async {
     try {
-      DocumentSnapshot doc =
-          await _firestore.collection('jobs').doc(jobId).get();
-      if (doc.exists) {
-        return JobModel.fromMap(doc.data() as Map<String, dynamic>);
-      }
-      return null;
+      return await _firestore.collection('jobs').doc(jobId).get();
     } catch (e) {
       rethrow;
     }
   }
 }
-*/

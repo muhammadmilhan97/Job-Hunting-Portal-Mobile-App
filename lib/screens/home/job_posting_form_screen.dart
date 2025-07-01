@@ -5,6 +5,7 @@ import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
 import '../../constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+// import '../../services/notification_service.dart';
 
 class JobPostingFormScreen extends StatefulWidget {
   final String? jobId;
@@ -33,6 +34,8 @@ class _JobPostingFormScreenState extends State<JobPostingFormScreen> {
   final List<String> _categories = ['IT', 'Education', 'Marketing', 'SEO'];
   final List<String> _genders = ['Any', 'Male', 'Female'];
   final List<String> _types = ['Full-time', 'Part-time', 'Freelance'];
+
+  // final NotificationService _notificationService = NotificationService();
 
   @override
   void initState() {
@@ -115,6 +118,29 @@ class _JobPostingFormScreenState extends State<JobPostingFormScreen> {
           // Create new job
           final docRef =
               await FirebaseFirestore.instance.collection('jobs').add(jobData);
+
+          // Send notifications to job seekers about new job
+          try {
+            // Get all job seekers
+            final jobSeekersQuery = await FirebaseFirestore.instance
+                .collection('users')
+                .where('userType', isEqualTo: 'job_seeker')
+                .get();
+
+            List<String> jobSeekerIds =
+                jobSeekersQuery.docs.map((doc) => doc.id).toList();
+
+            if (jobSeekerIds.isNotEmpty) {
+              // await _notificationService.sendNewJobNotification(
+              //   jobSeekerIds,
+              //   _titleController.text.trim(),
+              //   companyName.isNotEmpty ? companyName : 'Company',
+              // );
+            }
+          } catch (e) {
+            print('Error sending job notifications: $e');
+          }
+
           setState(() => _isLoading = false);
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(

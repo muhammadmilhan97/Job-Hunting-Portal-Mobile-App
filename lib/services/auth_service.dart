@@ -2,10 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
 import 'package:flutter/foundation.dart';
+// import 'notification_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // final NotificationService _notificationService = NotificationService();
 
   // Get current user
   User? get currentUser => _auth.currentUser;
@@ -43,6 +45,12 @@ class AuthService {
           .collection('users')
           .doc(userCredential.user!.uid)
           .set(userModel.toMap());
+
+      // Send welcome notification
+      // await _notificationService.sendWelcomeNotification(
+      //   userCredential.user!.uid,
+      //   name,
+      // );
 
       return userCredential;
     } catch (e) {

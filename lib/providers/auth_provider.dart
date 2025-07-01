@@ -23,6 +23,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   User? get user => _user;
+  User? get currentUser => _user;
   UserModel? get userProfile => _userProfile;
   bool get isLoading => _isLoading;
   String? get error => _error;

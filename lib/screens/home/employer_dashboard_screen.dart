@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart' as local_auth;
 import '../auth/login_screen.dart';
 import 'employer_profile_screen.dart';
+import '../notifications_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class EmployerDashboardScreen extends StatefulWidget {
@@ -52,6 +53,17 @@ class _EmployerDashboardScreenState extends State<EmployerDashboardScreen>
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         actions: [
+          IconButton(
+            icon: Icon(Icons.notifications, color: kPrimaryTextColor),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationsScreen(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: Icon(Icons.edit, color: kPrimaryTextColor),
             onPressed: () {

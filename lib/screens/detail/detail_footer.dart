@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../models/job.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/application_service.dart';
+import '../../services/favorites_service.dart';
 
 class DetailFooter extends StatefulWidget {
   final Job job;
@@ -17,6 +18,68 @@ class DetailFooter extends StatefulWidget {
 
 class _DetailFooterState extends State<DetailFooter> {
   bool _isLoading = false;
+  bool _isFavorited = false;
+  bool _hasApplied = false;
+  final FavoritesService _favoritesService = FavoritesService();
+  final ApplicationService _applicationService = ApplicationService();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFavoriteAndApplicationStatus();
+  }
+
+  Future<void> _checkFavoriteAndApplicationStatus() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.userProfile;
+    if (user != null) {
+      try {
+        final isFavorited =
+            await _favoritesService.isJobFavorited(user.uid, widget.job.docId);
+        final hasApplied = await _applicationService.hasUserApplied(
+            user.uid, widget.job.docId);
+
+        if (mounted) {
+          setState(() {
+            _isFavorited = isFavorited;
+            _hasApplied = hasApplied;
+          });
+        }
+      } catch (e) {
+        print('Error checking status: $e');
+      }
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.userProfile;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('You must be logged in to favorite jobs.')),
+      );
+      return;
+    }
+
+    try {
+      final newFavoriteStatus =
+          await _favoritesService.toggleFavorite(user.uid, widget.job.docId);
+      setState(() {
+        _isFavorited = newFavoriteStatus;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              _isFavorited ? 'Added to favorites!' : 'Removed from favorites!'),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating favorites. Please try again.')),
+      );
+    }
+  }
 
   Future<void> _applyForJob(BuildContext context) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -27,6 +90,15 @@ class _DetailFooterState extends State<DetailFooter> {
       );
       return;
     }
+
+    // Check if user has already applied
+    if (_hasApplied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('You have already applied for this job.')),
+      );
+      return;
+    }
+
     final cvUrl = user.profileData['cvUrl'] ?? '';
     if (cvUrl.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -52,8 +124,9 @@ class _DetailFooterState extends State<DetailFooter> {
     print(
         'DEBUG: Applying for job with employerId: $employerId, userName: $userName, jobTitle: $jobTitle');
     setState(() => _isLoading = true);
+
     try {
-      await ApplicationService().submitApplication(
+      await _applicationService.submitApplication(
         jobId: widget.job.docId,
         userId: user.uid,
         cvUrl: cvUrl,
@@ -63,26 +136,40 @@ class _DetailFooterState extends State<DetailFooter> {
         userName: userName,
         jobTitle: jobTitle,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Application submitted successfully!')),
-      );
+
+      setState(() {
+        _isLoading = false;
+        _hasApplied = true;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Application submitted successfully!')),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to apply: \\${e.toString()}')),
-      );
-    } finally {
       setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Failed to submit application. Please try again.')),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
+        const Spacer(),
+        Container(
+          margin: EdgeInsets.only(
+            left: kSpacingUnit * 2,
+            right: kSpacingUnit * 2,
+            bottom: kSpacingUnit * 2,
+          ),
           child: Container(
             padding: EdgeInsets.all(kSpacingUnit * 2),
             decoration: BoxDecoration(
@@ -91,19 +178,23 @@ class _DetailFooterState extends State<DetailFooter> {
             ),
             child: Row(
               children: [
-                Container(
-                  height: kSpacingUnit * 6,
-                  width: kSpacingUnit * 8,
-                  decoration: BoxDecoration(
-                    color: kSilverColor,
-                    borderRadius: BorderRadius.circular(kSpacingUnit * 3),
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      'assets/icons/heart_icon.svg',
-                      color: kAccentColor,
-                      height: 20.sp,
-                      width: 20.sp,
+                GestureDetector(
+                  onTap: _toggleFavorite,
+                  child: Container(
+                    height: kSpacingUnit * 6,
+                    width: kSpacingUnit * 8,
+                    decoration: BoxDecoration(
+                      color: kSilverColor,
+                      borderRadius: BorderRadius.circular(kSpacingUnit * 3),
+                    ),
+                    child: Center(
+                      child: SvgPicture.asset(
+                        'assets/icons/heart_icon.svg',
+                        color:
+                            _isFavorited ? kAccentColor : kSecondaryTextColor,
+                        height: 20.sp,
+                        width: 20.sp,
+                      ),
                     ),
                   ),
                 ),
@@ -115,14 +206,14 @@ class _DetailFooterState extends State<DetailFooter> {
                       height: kSpacingUnit * 6,
                       width: kSpacingUnit * 8,
                       decoration: BoxDecoration(
-                        color: kAccentColor,
+                        color: _hasApplied ? Colors.grey : kAccentColor,
                         borderRadius: BorderRadius.circular(kSpacingUnit * 3),
                       ),
                       child: Center(
                         child: _isLoading
                             ? CircularProgressIndicator(color: Colors.white)
                             : Text(
-                                'Apply Now',
+                                _hasApplied ? 'Already Applied' : 'Apply Now',
                                 style: kTitleTextStyle.copyWith(
                                     color: Colors.white),
                               ),

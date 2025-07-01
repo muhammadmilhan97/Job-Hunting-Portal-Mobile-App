@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'screens/auth/login_screen.dart';
 import 'providers/auth_provider.dart';
+// import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +15,9 @@ void main() async {
         options: DefaultFirebaseOptions.currentPlatform,
       );
     }
+
+    // Initialize notification service
+    // await NotificationService().initialize();
   } catch (e) {
     debugPrint('Firebase init error: $e');
   }
