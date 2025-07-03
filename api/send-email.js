@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
 
   const msg = {
     to,
-    from: 'your_verified_sender@example.com', // Replace with your verified sender
+    from: 'jobhuntapplication@gmail.com', // Replace with your verified sender
     subject,
     text,
     html,
