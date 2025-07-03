@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/muhammadmilhan97/Job-Hunting-Portal-Mobile-App/issues"
   },
-  "homepage": "https://github.com/muhammadmilhan97/Job-Hunting-Portal-Mobile-App#readme"
+  "homepage": "https://github.com/muhammadmilhan97/Job-Hunting-Portal-Mobile-App#readme",
+  "dependencies": {
+    "@sendgrid/mail": "^7.7.0"
+  }
 }
