@@ -106,17 +106,25 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
             top: 0,
             left: 0,
             right: 0,
-            child: Container(
-              color: Colors.red,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: SafeArea(
-                bottom: false,
-                child: Center(
-                  child: Text(
-                    'No Internet Connection',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
+            child: SafeArea(
+              bottom: false,
+              child: Container(
+                color: Colors.red,
+                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.wifi_off, color: Colors.white, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'No Internet Connection',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.normal,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
