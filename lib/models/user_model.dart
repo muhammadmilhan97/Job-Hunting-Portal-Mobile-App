@@ -52,7 +52,11 @@ class UserModel {
   String? get country => profileData['country'];
   String? get address => profileData['address'];
   String? get experience => profileData['experience'];
-  String? get expectedSalary => profileData['expectedSalary'];
+  String? get expectedSalary {
+    final val = profileData['expectedSalary'];
+    if (val == null) return null;
+    return val.toString();
+  }
 
   // Employer specific getters
   String? get companyName => profileData['companyName'];

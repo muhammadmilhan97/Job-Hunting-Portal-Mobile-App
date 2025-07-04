@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
 import 'package:flutter/foundation.dart';
+import '../services/email_service.dart';
 // import 'notification_service.dart';
 
 class AuthService {
@@ -45,6 +46,13 @@ class AuthService {
           .collection('users')
           .doc(userCredential.user!.uid)
           .set(userModel.toMap());
+
+      // Send welcome email
+      await EmailService.sendWelcomeEmail(
+        to: email,
+        userName: name,
+        userType: userType,
+      );
 
       // Send welcome notification
       // await _notificationService.sendWelcomeNotification(
@@ -107,6 +115,26 @@ class AuthService {
   Future<void> resetPassword(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
+
+      // Fetch user name from Firestore
+      final userQuery = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+      String userName = '';
+      if (userQuery.docs.isNotEmpty) {
+        final userData = userQuery.docs.first.data();
+        userName = userData['name'] ?? '';
+      }
+      // Firebase handles the reset link, so we can't get it directly. We'll use the default link.
+      final resetLink =
+          '(Check your inbox for the official reset link from JobHunt)';
+      await EmailService.sendPasswordReset(
+        to: email,
+        userName: userName,
+        resetLink: resetLink,
+      );
     } catch (e) {
       throw Exception('Failed to send password reset email: ${e.toString()}');
     }

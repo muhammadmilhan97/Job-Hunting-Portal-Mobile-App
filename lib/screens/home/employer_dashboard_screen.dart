@@ -11,6 +11,7 @@ import '../auth/login_screen.dart';
 import 'employer_profile_screen.dart';
 import '../notifications_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../services/application_service.dart';
 
 class EmployerDashboardScreen extends StatefulWidget {
   const EmployerDashboardScreen({super.key});
@@ -699,6 +700,81 @@ class ApplicationsListWidget extends StatelessWidget {
                           ),
                       ],
                     ),
+                    if (status == 'accepted')
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          icon: Icon(Icons.calendar_today,
+                              size: 18, color: kAccentColor),
+                          label: Text('Schedule Interview',
+                              style:
+                                  kBodyTextStyle.copyWith(color: kAccentColor)),
+                          onPressed: () async {
+                            final dateController = TextEditingController();
+                            final linkController = TextEditingController();
+                            final result = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Schedule Interview'),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    TextField(
+                                      controller: dateController,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Date & Time',
+                                        hintText: 'e.g. 2024-07-10 15:00',
+                                      ),
+                                    ),
+                                    TextField(
+                                      controller: linkController,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Meeting Link',
+                                        hintText:
+                                            'e.g. https://meet.google.com/...',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: const Text('Send'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (result == true &&
+                                dateController.text.isNotEmpty &&
+                                linkController.text.isNotEmpty) {
+                              final employerName =
+                                  Provider.of<local_auth.AuthProvider>(context,
+                                              listen: false)
+                                          .userProfile
+                                          ?.companyName ??
+                                      'Employer';
+                              await ApplicationService()
+                                  .sendManualInterviewEmail(
+                                applicationId: appDoc.id,
+                                interviewDateTime: dateController.text,
+                                employerName: employerName,
+                                meetingLink: linkController.text,
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'Interview email sent to candidate.')),
+                              );
+                            }
+                          },
+                        ),
+                      ),
                   ],
                 ),
               ),

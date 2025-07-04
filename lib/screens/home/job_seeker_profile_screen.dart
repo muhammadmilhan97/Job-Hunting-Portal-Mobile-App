@@ -209,19 +209,22 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
   Future<void> _saveProfile(String uid) async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      await FirebaseFirestore.instance.collection('users').doc(uid).update({
-        'name': _nameController.text.trim(),
-        'profileData.phone': _phoneController.text.trim(),
-        'profileData.city': _cityController.text.trim(),
-        'profileData.country': _countryController.text.trim(),
-        'profileData.address': _addressController.text.trim(),
-        'profileData.education': _educationController.text.trim(),
-        'profileData.experience': _experienceController.text.trim(),
-        'profileData.expectedSalary':
+      final profileData = {
+        'phone': _phoneController.text.trim(),
+        'city': _cityController.text.trim(),
+        'country': _countryController.text.trim(),
+        'address': _addressController.text.trim(),
+        'education': _educationController.text.trim(),
+        'experience': _experienceController.text.trim(),
+        'expectedSalary':
             int.tryParse(_expectedSalaryController.text.trim()) ?? 0,
-        'profileData.bio': _bioController.text.trim(),
-        'profileData.skills': _skills,
-      });
+        'bio': _bioController.text.trim(),
+        'skills': _skills,
+        'cvUrl': _cvUrl,
+        'profile_image_url': _profileImageUrl,
+      };
+      await Provider.of<AuthProvider>(context, listen: false)
+          .updateProfile(profileData);
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated successfully!')));

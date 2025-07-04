@@ -135,6 +135,8 @@ class _DetailFooterState extends State<DetailFooter> {
         employerId: employerId,
         userName: userName,
         jobTitle: jobTitle,
+        userEmail: user.email,
+        companyName: widget.job.companyName,
       );
 
       setState(() {

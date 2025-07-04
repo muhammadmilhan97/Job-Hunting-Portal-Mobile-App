@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/job.dart';
+import '../services/email_service.dart';
 
 class JobService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -16,7 +17,7 @@ class JobService {
     required String employerId,
   }) async {
     try {
-      await _firestore.collection('jobs').add({
+      final jobRef = await _firestore.collection('jobs').add({
         'title': title,
         'company': company,
         'location': location,
@@ -28,6 +29,49 @@ class JobService {
         'timestamp': FieldValue.serverTimestamp(),
         'status': 'active',
       });
+
+      // Find matching job seekers
+      final usersQuery = await _firestore
+          .collection('users')
+          .where('userType', isEqualTo: 'job_seeker')
+          .get();
+      for (final doc in usersQuery.docs) {
+        final userData = doc.data();
+        final userEmail = userData['email'] ?? '';
+        final userName = userData['name'] ?? '';
+        final profileData = userData['profileData'] ?? {};
+        final List<dynamic> skills = profileData['skills'] ?? [];
+        final String? preferredCategory = profileData['preferredCategory'];
+        bool matches = false;
+        // Match by category/type
+        if (preferredCategory != null &&
+            preferredCategory.isNotEmpty &&
+            preferredCategory == type) {
+          matches = true;
+        }
+        // Match by skills (if job requirements contain any of the user's skills)
+        if (!matches && skills.isNotEmpty) {
+          for (final skill in skills) {
+            if (requirements
+                .toLowerCase()
+                .contains(skill.toString().toLowerCase())) {
+              matches = true;
+              break;
+            }
+          }
+        }
+        if (matches) {
+          final jobLink =
+              'https://job-hunting-portal-mobile-app.vercel.app/'; // You can generate a direct link if available
+          await EmailService.sendNewMatchingJob(
+            to: userEmail,
+            userName: userName,
+            jobTitle: title,
+            companyName: company,
+            jobLink: jobLink,
+          );
+        }
+      }
     } catch (e) {
       throw Exception('Failed to create job: ${e.toString()}');
     }
