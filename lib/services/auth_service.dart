@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
-import 'package:flutter/foundation.dart';
 import '../services/email_service.dart';
 // import 'notification_service.dart';
 
@@ -32,7 +31,6 @@ class AuthService {
       );
 
       // Create user profile in Firestore
-      debugPrint('profileData type: \\${profileData.runtimeType}');
       final userModel = UserModel(
         uid: userCredential.user!.uid,
         email: email,
@@ -62,7 +60,6 @@ class AuthService {
 
       return userCredential;
     } catch (e) {
-      debugPrint('Original registration error: $e');
       rethrow;
     }
   }

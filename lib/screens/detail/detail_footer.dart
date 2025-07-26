@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:job_listing_app/constants.dart';
+import 'package:job_hunting_app_new/constants.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../models/job.dart';
@@ -39,14 +39,13 @@ class _DetailFooterState extends State<DetailFooter> {
         final hasApplied = await _applicationService.hasUserApplied(
             user.uid, widget.job.docId);
 
-        if (mounted) {
-          setState(() {
-            _isFavorited = isFavorited;
-            _hasApplied = hasApplied;
-          });
-        }
+        if (!mounted) return;
+        setState(() {
+          _isFavorited = isFavorited;
+          _hasApplied = hasApplied;
+        });
       } catch (e) {
-        print('Error checking status: $e');
+        // print('Error checking status: $e');
       }
     }
   }
@@ -55,6 +54,7 @@ class _DetailFooterState extends State<DetailFooter> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.userProfile;
     if (user == null) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('You must be logged in to favorite jobs.')),
       );
@@ -64,6 +64,7 @@ class _DetailFooterState extends State<DetailFooter> {
     try {
       final newFavoriteStatus =
           await _favoritesService.toggleFavorite(user.uid, widget.job.docId);
+      if (!mounted) return;
       setState(() {
         _isFavorited = newFavoriteStatus;
       });
@@ -75,6 +76,7 @@ class _DetailFooterState extends State<DetailFooter> {
         ),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error updating favorites. Please try again.')),
       );
@@ -85,6 +87,7 @@ class _DetailFooterState extends State<DetailFooter> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.userProfile;
     if (user == null) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('You must be logged in to apply.')),
       );
@@ -93,14 +96,16 @@ class _DetailFooterState extends State<DetailFooter> {
 
     // Check if user has already applied
     if (_hasApplied) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('You have already applied for this job.')),
       );
       return;
     }
 
-    final cvUrl = user.profileData['cvUrl'] ?? '';
+    final cvUrl = user.profileData['cvUrl'];
     if (cvUrl.isEmpty) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
@@ -109,6 +114,7 @@ class _DetailFooterState extends State<DetailFooter> {
       return;
     }
     if (widget.job.docId.isEmpty) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content:
@@ -118,11 +124,9 @@ class _DetailFooterState extends State<DetailFooter> {
     }
     final expectedSalary = user.expectedSalary ?? '';
     final experience = user.experience ?? '';
-    final employerId = widget.job.postedBy ?? '';
+    final employerId = widget.job.postedBy;
     final userName = user.name;
     final jobTitle = widget.job.position;
-    print(
-        'DEBUG: Applying for job with employerId: $employerId, userName: $userName, jobTitle: $jobTitle');
     setState(() => _isLoading = true);
 
     try {
@@ -138,25 +142,19 @@ class _DetailFooterState extends State<DetailFooter> {
         userEmail: user.email,
         companyName: widget.job.companyName,
       );
-
-      setState(() {
-        _isLoading = false;
-        _hasApplied = true;
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Application submitted successfully!')),
-        );
-      }
+      if (!context.mounted) return;
+      setState(() => _isLoading = false);
+      setState(() => _hasApplied = true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Application submitted!')),
+      );
     } catch (e) {
       setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Failed to submit application. Please try again.')),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Failed to submit application. Please try again.')),
+      );
     }
   }
 
@@ -192,8 +190,9 @@ class _DetailFooterState extends State<DetailFooter> {
                     child: Center(
                       child: SvgPicture.asset(
                         'assets/icons/heart_icon.svg',
-                        color:
+                        colorFilter: ColorFilter.mode(
                             _isFavorited ? kAccentColor : kSecondaryTextColor,
+                            BlendMode.srcIn),
                         height: 20.sp,
                         width: 20.sp,
                       ),

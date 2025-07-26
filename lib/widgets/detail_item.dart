@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:job_listing_app/constants.dart';
+import 'package:job_hunting_app_new/constants.dart';
 
 class DetailItem extends StatelessWidget {
   final String value;

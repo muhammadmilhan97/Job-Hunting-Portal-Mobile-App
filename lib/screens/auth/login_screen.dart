@@ -109,13 +109,14 @@ class _LoginScreenState extends State<LoginScreen> {
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
-        debugPrint('Login successful for user: \\${userCredential.user?.uid}');
+        if (!mounted) return;
+        debugPrint('Login successful for user: ${userCredential.user?.uid}');
         await _authService
             .getUserProfile(userCredential.user!.uid)
             .then((userProfile) {
-          debugPrint('Fetched user profile: ' +
-              (userProfile != null ? userProfile.toMap().toString() : 'null'));
-          debugPrint('Detected userType: ' + (userProfile?.userType ?? 'null'));
+          debugPrint(
+              'Fetched user profile: ${userProfile != null ? userProfile.toMap().toString() : 'null'}');
+          debugPrint('Detected userType: ${userProfile?.userType ?? 'null'}');
           setState(() => _isLoading = false);
           if (mounted) {
             if (userProfile == null) {
@@ -129,6 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       } catch (e) {
         setState(() => _isLoading = false);
+        if (!mounted) return;
         String errorMessage = e.toString();
         if (errorMessage.contains('user-not-found')) {
           errorMessage = 'No user found with this email. Please sign up first.';
@@ -157,9 +159,11 @@ class _LoginScreenState extends State<LoginScreen> {
             builder: (context) => const EmployerDashboardScreen()),
       );
     } else if (userType == 'admin') {
-      // TODO: Implement AdminDashboardScreen if needed
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Admin dashboard not implemented.')),
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AdminDashboardScreen(),
+        ),
       );
     } else {
       // Default to job seeker
@@ -168,47 +172,6 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (context) => const JobSeekerHomeScreen()),
       );
     }
-  }
-
-  void _showForgotPasswordDialog() {
-    final TextEditingController emailController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Reset Password'),
-          content: TextField(
-            controller: emailController,
-            decoration: const InputDecoration(hintText: 'Enter your email'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                try {
-                  await _authService.resetPassword(emailController.text.trim());
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Password reset email sent!')),
-                  );
-                } catch (e) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text(
-                            'Failed to send reset email: ${e.toString()}')),
-                  );
-                }
-              },
-              child: const Text('Send'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
@@ -270,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: 24.h),
                 Divider(
-                  color: kSecondaryTextColor.withOpacity(0.15),
+                  color: kSecondaryTextColor.withAlpha(38),
                   thickness: 1,
                 ),
                 SizedBox(height: 16.h),
@@ -363,6 +326,18 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class AdminDashboardScreen extends StatelessWidget {
+  const AdminDashboardScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Admin Dashboard')),
+      body: const Center(child: Text('Admin dashboard coming soon!')),
     );
   }
 }

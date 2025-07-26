@@ -92,6 +92,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           _selectedUserType,
           profileData,
         );
+        if (!mounted) return;
         setState(() => _isLoading = false);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -104,6 +105,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         setState(() => _isLoading = false);
         // Clear Firebase state on failure
         await FirebaseAuth.instance.signOut();
+        if (!mounted) return;
         String errorMessage = e.toString();
         if (errorMessage.contains('email-already-in-use')) {
           errorMessage =
@@ -168,7 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 24.h),
                 Divider(
-                  color: kSecondaryTextColor.withOpacity(0.15),
+                  color: kSecondaryTextColor.withAlpha(38),
                   thickness: 1,
                 ),
                 SizedBox(height: 16.h),

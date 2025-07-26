@@ -50,7 +50,6 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
         setState(() {
           _selectedCategory = category;
         });
-        // TODO: Filter jobs by category
       },
       child: Container(
         margin: EdgeInsets.only(right: 12.w),
@@ -59,9 +58,8 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
           color: isSelected ? kAccentColor : Colors.white,
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
-            color: isSelected
-                ? kAccentColor
-                : kSecondaryTextColor.withOpacity(0.3),
+            color:
+                isSelected ? kAccentColor : kSecondaryTextColor.withAlpha(77),
           ),
         ),
         child: Text(
@@ -111,7 +109,7 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
                         width: 40.w,
                         height: 40.w,
                         decoration: BoxDecoration(
-                          color: kAccentColor.withOpacity(0.1),
+                          color: kAccentColor.withAlpha(25),
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: logoUrl.isNotEmpty
@@ -155,7 +153,7 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
                                   vertical: 2.h,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: kAccentColor.withOpacity(0.1),
+                                  color: kAccentColor.withAlpha(25),
                                   borderRadius: BorderRadius.circular(4.r),
                                 ),
                                 child: Text(
@@ -228,7 +226,6 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
     try {
       return await _favoritesService.isJobFavorited(user.uid, jobId);
     } catch (e) {
-      print('Error checking favorite status: $e');
       return false;
     }
   }
@@ -247,7 +244,7 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
       final newFavoriteStatus =
           await _favoritesService.toggleFavorite(user.uid, jobId);
       setState(() {}); // Refresh the UI
-
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(newFavoriteStatus
@@ -256,6 +253,7 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
         ),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error updating favorites. Please try again.')),
       );
@@ -368,9 +366,7 @@ class _JobSeekerHomeScreenState extends State<JobSeekerHomeScreen> {
                     controller: _searchController,
                     hintText: 'Search jobs...',
                     prefixIcon: Icon(Icons.search, color: kSecondaryTextColor),
-                    onChanged: (value) {
-                      // TODO: Implement search functionality
-                    },
+                    onChanged: (value) {},
                   ),
                 ],
               ),

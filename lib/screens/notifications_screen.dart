@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 // import '../services/notification_service.dart';
 import '../constants.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -14,9 +15,6 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   // final NotificationService _notificationService = NotificationService();
 
-  List<Map<String, dynamic>> _notifications = [];
-  bool _isLoading = true;
-
   @override
   void initState() {
     super.initState();
@@ -24,8 +22,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _loadNotifications() async {
-    setState(() => _isLoading = true);
-
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final userId = authProvider.currentUser?.uid;
@@ -34,18 +30,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         // For now, we'll show a simple message
         // You can implement notification loading from Firestore later
         setState(() {
-          _notifications = [];
+          // _notifications = []; // This line is removed
         });
       }
     } catch (e) {
-      print('Error loading notifications: $e');
+      // print('Error loading notifications: $e');
     }
-
-    setState(() => _isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final userId = authProvider.currentUser?.uid;
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -60,11 +57,69 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _notifications.isEmpty
-              ? _buildEmptyState()
-              : _buildNotificationsList(),
+      body: userId == null
+          ? _buildEmptyState()
+          : StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('notifications')
+                  .where('userId', isEqualTo: userId)
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return _buildEmptyState();
+                }
+                final notifications = snapshot.data!.docs;
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: notifications.length,
+                  itemBuilder: (context, index) {
+                    final notification =
+                        notifications[index].data() as Map<String, dynamic>;
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: AppColors.primary.withAlpha(25),
+                          child: Icon(
+                            Icons.notifications,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        title: Text(
+                          notification['title'] ?? 'Notification',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'SF Pro Text',
+                          ),
+                        ),
+                        subtitle: Text(
+                          notification['body'] ?? '',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontFamily: 'SF Pro Text',
+                          ),
+                        ),
+                        trailing: Text(
+                          _formatTimestamp(notification['timestamp']),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[500],
+                            fontFamily: 'SF Pro Text',
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
     );
   }
 
@@ -99,53 +154,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildNotificationsList() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _notifications.length,
-      itemBuilder: (context, index) {
-        final notification = _notifications[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          elevation: 2,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: AppColors.primary.withOpacity(0.1),
-              child: Icon(
-                Icons.notifications,
-                color: AppColors.primary,
-              ),
-            ),
-            title: Text(
-              notification['title'] ?? 'Notification',
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontFamily: 'SF Pro Text',
-              ),
-            ),
-            subtitle: Text(
-              notification['body'] ?? '',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontFamily: 'SF Pro Text',
-              ),
-            ),
-            trailing: Text(
-              _formatTimestamp(notification['timestamp']),
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[500],
-                fontFamily: 'SF Pro Text',
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 

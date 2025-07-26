@@ -29,17 +29,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       setState(() => _isLoading = true);
       try {
         await _authService.resetPassword(_emailController.text.trim());
+        if (!mounted) return;
         setState(() => _isLoading = false);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Password reset email sent. Please check your inbox.',
-              ),
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Password reset email sent. Please check your inbox.',
             ),
-          );
-          Navigator.pop(context);
-        }
+          ),
+        );
+        Navigator.pop(context);
       } catch (e) {
         setState(() => _isLoading = false);
         String errorMessage = e.toString();
@@ -108,7 +107,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
                 SizedBox(height: 24.h),
                 Divider(
-                  color: kSecondaryTextColor.withOpacity(0.15),
+                  color: kSecondaryTextColor.withAlpha(38),
                   thickness: 1,
                 ),
                 SizedBox(height: 16.h),

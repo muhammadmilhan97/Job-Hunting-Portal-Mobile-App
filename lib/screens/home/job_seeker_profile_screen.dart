@@ -6,7 +6,6 @@ import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
 import '../../constants.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 import '../../services/cloudinary_service.dart';
@@ -122,11 +121,13 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
           _profileImageUrl = url;
           _isLoading = false;
         });
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile picture updated!')),
         );
       } else {
         setState(() => _isLoading = false);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Image upload failed.')),
         );
@@ -145,12 +146,14 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
       final fileSize = await file.length();
       final isPdf = fileName.toLowerCase().endsWith('.pdf');
       if (!isPdf) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Only PDF files are allowed.')),
         );
         return;
       }
       if (fileSize > 5 * 1024 * 1024) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('File size must be under 5MB.')),
         );
@@ -166,17 +169,20 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
           _cvUrl = url;
           _isLoading = false;
         });
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('CV uploaded successfully!')),
         );
       } else {
         setState(() => _isLoading = false);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Upload failed. Please try again.')),
         );
       }
     } else {
       setState(() => _isLoading = false);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No file selected.')),
       );
@@ -190,6 +196,7 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
     await FirebaseFirestore.instance.collection('users').doc(uid).update({
       'profileData.cvUrl': FieldValue.delete(),
     });
+    if (!mounted) return;
     setState(() {
       _cvUrl = null;
       _isLoading = false;
@@ -225,6 +232,7 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
       };
       await Provider.of<AuthProvider>(context, listen: false)
           .updateProfile(profileData);
+      if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated successfully!')));
@@ -257,6 +265,7 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                           children: [
                             CircleAvatar(
                               radius: 48.r,
+                              backgroundColor: kSilverColor,
                               backgroundImage: _profileImageUrl != null &&
                                       _profileImageUrl!.isNotEmpty
                                   ? NetworkImage(_profileImageUrl!)
@@ -266,7 +275,6 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                                   ? Icon(Icons.person,
                                       size: 48.r, color: kSecondaryTextColor)
                                   : null,
-                              backgroundColor: kSilverColor,
                             ),
                             Positioned(
                               bottom: 0,
@@ -550,6 +558,7 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                                             Uri.parse(_cvUrl!))) {
                                           await launchUrl(Uri.parse(_cvUrl!));
                                         } else {
+                                          if (!context.mounted) return;
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             const SnackBar(

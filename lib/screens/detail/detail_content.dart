@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:job_listing_app/constants.dart';
-import 'package:job_listing_app/models/job.dart';
-import 'package:job_listing_app/widgets/detail_item.dart';
+import 'package:job_hunting_app_new/constants.dart';
+import 'package:job_hunting_app_new/models/job.dart';
 
 class DetailContent extends StatelessWidget {
   final Job data;

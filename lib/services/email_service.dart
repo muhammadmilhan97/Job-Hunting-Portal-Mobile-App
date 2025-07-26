@@ -168,7 +168,7 @@ Thank you for applying to $jobTitle at $companyName. We appreciate your interest
 
 After careful review, the employer has decided to move forward with other candidates for this role.
 
-Don\'t be discouraged—many other great opportunities await you on JobHunt by Muhammad Milhan. Keep applying and stay persistent!
+Don't be discouraged—many other great opportunities await you on JobHunt by Muhammad Milhan. Keep applying and stay persistent!
 
 Sincerely,
 JobHunt Team
@@ -178,7 +178,7 @@ jobhuntapplication@gmail.com
 <p>Hi $userName,</p>
 <p>Thank you for applying to <b>$jobTitle</b> at <b>$companyName</b>. We appreciate your interest and the time you took to apply.</p>
 <p>After careful review, the employer has decided to move forward with other candidates for this role.</p>
-<p>Don\'t be discouraged—many other great opportunities await you on <b>JobHunt by Muhammad Milhan</b>. Keep applying and stay persistent!</p>
+<p>Don't be discouraged—many other great opportunities await you on <b>JobHunt by Muhammad Milhan</b>. Keep applying and stay persistent!</p>
 <p>Sincerely,<br><b>JobHunt Team</b><br>jobhuntapplication@gmail.com</p>
 ''';
     } else if (status == 'interview_scheduled') {
@@ -376,6 +376,57 @@ jobhuntapplication@gmail.com
 </ul>
 <p>Don't miss this opportunity—apply today and take one step closer to your career goals.</p>
 <p>Best of luck!<br><b>JobHunt by Muhammad Milhan</b><br>jobhuntapplication@gmail.com</p>
+''';
+    return await EmailService.sendJobApplicationEmail(
+      to: to,
+      subject: subject,
+      text: text,
+      html: html,
+    );
+  }
+
+  static Future<bool> sendJobPostedConfirmation({
+    required String to,
+    required String employerName,
+    required String jobTitle,
+    required String companyName,
+    required String jobDashboard,
+  }) async {
+    final subject = '🎉 Your Job is Now Live on JobHunt!';
+    final text =
+        'Hi $employerName,\n\nYou\'ve just posted the job "$jobTitle" at $companyName and it\'s now live on JobHunt by Muhammad Milhan.';
+    final html = '''
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Job Posted Successfully – JobHunt by Muhammad Milhan</title>
+  </head>
+  <body style="font-family:Arial, sans-serif; background:#f9f9f9; padding:20px;">
+    <div style="max-width:600px; margin:auto; background:white; padding:30px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1);">
+
+      <h2 style="color:#004080;">🎉 Your Job is Now Live on JobHunt!</h2>
+
+      <p>Hi $employerName,</p>
+
+      <p>You've just posted the job <strong>"$jobTitle"</strong> at <strong>$companyName</strong> and it's now live on <strong>JobHunt by Muhammad Milhan</strong>.</p>
+
+      <p>Our team is actively showcasing your listing to top talent. Here's what you can do next:</p>
+
+      <ul>
+        <li>✅ View and manage your job listing</li>
+        <li>✅ Track applications in real time</li>
+        <li>✅ Shortlist and communicate with candidates directly</li>
+      </ul>
+
+      <p><a href="$jobDashboard" style="background:#004080; color:white; text-decoration:none; padding:10px 20px; border-radius:4px;">📂 View Your Job Post</a></p>
+
+      <p>If you need help or want to boost your listing's reach, we're here to support you anytime at <a href="mailto:jobhuntapplication@gmail.com">jobhuntapplication@gmail.com</a>.</p>
+
+      <p style="margin-top:30px;">Good luck with hiring!<br><strong>Muhammad Milhan</strong><br>Founder – JobHunt</p>
+    </div>
+  </body>
+</html>
 ''';
     return await EmailService.sendJobApplicationEmail(
       to: to,

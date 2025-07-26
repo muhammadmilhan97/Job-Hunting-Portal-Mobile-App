@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'email_service.dart';
+// import 'notification_service.dart';
 
 class ApplicationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -116,6 +117,13 @@ jobhuntapplication@gmail.com
           html: employerHtml,
         );
       }
+
+      // Send in-app notification to employer
+      // await NotificationService().sendNewApplicationNotification(
+      //   employerId,
+      //   jobTitle,
+      //   userName,
+      // );
     } catch (e) {
       rethrow;
     }

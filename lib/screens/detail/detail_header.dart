@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:job_listing_app/constants.dart';
-import 'package:job_listing_app/models/job.dart';
+import 'package:job_hunting_app_new/constants.dart';
+import 'package:job_hunting_app_new/models/job.dart';
 
 class DetailHeader extends StatelessWidget {
   const DetailHeader({super.key, required this.data});
@@ -29,19 +29,16 @@ class DetailHeader extends StatelessWidget {
           Center(
             child: CircleAvatar(
               radius: 40.w,
-              backgroundColor: kAccentColor.withOpacity(0.1),
+              backgroundColor: kAccentColor.withAlpha(25),
               backgroundImage: (data.companyLogoUrl.isNotEmpty &&
                       data.companyLogoUrl.startsWith('http'))
                   ? NetworkImage(data.companyLogoUrl)
-                  : (data.imgUrl != null &&
-                          data.imgUrl.isNotEmpty &&
-                          data.imgUrl.startsWith('http'))
+                  : (data.imgUrl.isNotEmpty && data.imgUrl.startsWith('http'))
                       ? NetworkImage(data.imgUrl)
                       : null,
               child: (data.companyLogoUrl.isEmpty &&
-                      (data.imgUrl == null ||
-                          data.imgUrl.isEmpty ||
-                          !data.imgUrl.startsWith('http')))
+                      data.imgUrl.isNotEmpty &&
+                      data.imgUrl.startsWith('http'))
                   ? Icon(Icons.business, color: kAccentColor, size: 40.w)
                   : null,
             ),

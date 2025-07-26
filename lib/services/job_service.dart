@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_brace_in_string_interps
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/job.dart';
 import '../services/email_service.dart';
@@ -17,7 +19,7 @@ class JobService {
     required String employerId,
   }) async {
     try {
-      final jobRef = await _firestore.collection('jobs').add({
+      await _firestore.collection('jobs').add({
         'title': title,
         'company': company,
         'location': location,
@@ -30,7 +32,7 @@ class JobService {
         'status': 'active',
       });
 
-      // Find matching job seekers
+      // Email ALL job seekers (not just matching)
       final usersQuery = await _firestore
           .collection('users')
           .where('userType', isEqualTo: 'job_seeker')
@@ -39,38 +41,46 @@ class JobService {
         final userData = doc.data();
         final userEmail = userData['email'] ?? '';
         final userName = userData['name'] ?? '';
-        final profileData = userData['profileData'] ?? {};
-        final List<dynamic> skills = profileData['skills'] ?? [];
-        final String? preferredCategory = profileData['preferredCategory'];
-        bool matches = false;
-        // Match by category/type
-        if (preferredCategory != null &&
-            preferredCategory.isNotEmpty &&
-            preferredCategory == type) {
-          matches = true;
-        }
-        // Match by skills (if job requirements contain any of the user's skills)
-        if (!matches && skills.isNotEmpty) {
-          for (final skill in skills) {
-            if (requirements
-                .toLowerCase()
-                .contains(skill.toString().toLowerCase())) {
-              matches = true;
-              break;
-            }
-          }
-        }
-        if (matches) {
-          final jobLink =
-              'https://job-hunting-portal-mobile-app.vercel.app/'; // You can generate a direct link if available
-          await EmailService.sendNewMatchingJob(
+        final jobLink =
+            'https://job-hunting-portal-mobile-app.vercel.app/'; // You can generate a direct link if available
+        try {
+          final sent = await EmailService.sendNewMatchingJob(
             to: userEmail,
             userName: userName,
             jobTitle: title,
             companyName: company,
             jobLink: jobLink,
           );
+          if (!sent) {
+            // print('Failed to send job notification to $userEmail');
+          }
+        } catch (e) {
+          // print('Error sending job notification to $userEmail: $e');
         }
+      }
+
+      // Send confirmation email to employer
+      // Fetch employer email and name
+      final employerDoc =
+          await _firestore.collection('users').doc(employerId).get();
+      final employerData = employerDoc.data() ?? {};
+      final employerEmail = employerData['email'] ?? '';
+      final employerName = employerData['name'] ?? '';
+      final jobDashboard =
+          'https://job-hunting-portal-mobile-app.vercel.app/'; // Replace with direct job link if available
+      try {
+        final sent = await EmailService.sendJobPostedConfirmation(
+          to: employerEmail,
+          employerName: employerName,
+          jobTitle: title,
+          companyName: company,
+          jobDashboard: jobDashboard,
+        );
+        if (!sent) {
+          // print('Failed to send job posted confirmation to $employerEmail');
+        }
+      } catch (e) {
+        // print('Error sending job posted confirmation to $employerEmail: $e');
       }
     } catch (e) {
       throw Exception('Failed to create job: ${e.toString()}');
@@ -148,7 +158,7 @@ class JobService {
         .where('status', isEqualTo: 'active')
         .orderBy('title')
         .startAt([query])
-        .endAt([query + '\uf8ff'])
+        .endAt(['${query}\uf8ff'])
         .snapshots()
         .map((snapshot) {
           return snapshot.docs

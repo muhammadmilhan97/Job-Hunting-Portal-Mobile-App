@@ -67,27 +67,34 @@ class _EmployerProfileScreenState extends State<EmployerProfileScreen> {
           await FirebaseFirestore.instance.collection('users').doc(uid).update({
             'profileData.companyLogo': url,
           });
+          if (!mounted) return;
+          await Provider.of<AuthProvider>(context, listen: false)
+              .updateProfile({'profileData.companyLogo': url});
           setState(() {
             _companyLogoUrl = url;
             _isLoading = false;
           });
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Logo uploaded successfully!')),
           );
         } catch (e) {
           setState(() => _isLoading = false);
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to save logo: $e')),
           );
         }
       } else {
         setState(() => _isLoading = false);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Upload failed. Please try again.')),
         );
       }
     } else {
       setState(() => _isLoading = false);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No file selected.')),
       );
@@ -102,6 +109,7 @@ class _EmployerProfileScreenState extends State<EmployerProfileScreen> {
         'profileData.companyName': _companyNameController.text.trim(),
         'profileData.companyAddress': _companyAddressController.text.trim(),
       });
+      if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated successfully!')));
@@ -132,7 +140,7 @@ class _EmployerProfileScreenState extends State<EmployerProfileScreen> {
                     children: [
                       CircleAvatar(
                         radius: 48.w,
-                        backgroundColor: kAccentColor.withOpacity(0.1),
+                        backgroundColor: kAccentColor.withAlpha(25),
                         backgroundImage:
                             _companyLogoUrl != null && _companyLogoUrl != ''
                                 ? NetworkImage(_companyLogoUrl!)

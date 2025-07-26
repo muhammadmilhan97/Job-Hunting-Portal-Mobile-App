@@ -16,9 +16,6 @@ Future<String?> uploadCVToCloudinary(File file) async {
   final url =
       Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/raw/upload');
 
-  print('Uploading file to Cloudinary: ${file.path}');
-  print('Signature: $signature');
-
   final request = http.MultipartRequest('POST', url)
     ..fields['api_key'] = apiKey
     ..fields['timestamp'] = timestamp
@@ -27,20 +24,14 @@ Future<String?> uploadCVToCloudinary(File file) async {
 
   try {
     final response = await request.send();
-    print('Cloudinary response status: ${response.statusCode}');
     if (response.statusCode == 200) {
       final res = await http.Response.fromStream(response);
       final data = jsonDecode(res.body);
-      print('Cloudinary upload success: $data');
       return data['secure_url'];
     } else {
-      print('Upload failed: ${response.statusCode}');
-      final res = await http.Response.fromStream(response);
-      print('Cloudinary error body: ${res.body}');
       return null;
     }
   } catch (e) {
-    print('Cloudinary upload exception: $e');
     return null;
   }
 }
@@ -58,9 +49,6 @@ Future<String?> uploadImageToCloudinary(File file) async {
   final url =
       Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
 
-  print('Uploading image to Cloudinary: \\${file.path}');
-  print('Signature: $signature');
-
   final request = http.MultipartRequest('POST', url)
     ..fields['api_key'] = apiKey
     ..fields['timestamp'] = timestamp
@@ -69,20 +57,14 @@ Future<String?> uploadImageToCloudinary(File file) async {
 
   try {
     final response = await request.send();
-    print('Cloudinary response status: \\${response.statusCode}');
     if (response.statusCode == 200) {
       final res = await http.Response.fromStream(response);
       final data = jsonDecode(res.body);
-      print('Cloudinary image upload success: $data');
       return data['secure_url'];
     } else {
-      print('Image upload failed: \\${response.statusCode}');
-      final res = await http.Response.fromStream(response);
-      print('Cloudinary error body: \\${res.body}');
       return null;
     }
   } catch (e) {
-    print('Cloudinary image upload exception: $e');
     return null;
   }
 }

@@ -7,7 +7,6 @@ class HomeRecentJobs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Replace with actual data later
     return Column(
       children: [
         _buildJobCard(
@@ -54,7 +53,7 @@ class HomeRecentJobs extends StatelessWidget {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(25),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -126,7 +125,7 @@ class HomeRecentJobs extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
+                    color: Colors.blue.withAlpha(25),
                     borderRadius: BorderRadius.circular(4.r),
                   ),
                   child: Text(

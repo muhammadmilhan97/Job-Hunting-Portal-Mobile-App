@@ -68,7 +68,7 @@ class MyApp extends StatelessWidget {
 
 class ConnectivityBanner extends StatefulWidget {
   final Widget child;
-  const ConnectivityBanner({required this.child, Key? key}) : super(key: key);
+  const ConnectivityBanner({super.key, required this.child});
 
   @override
   State<ConnectivityBanner> createState() => _ConnectivityBannerState();

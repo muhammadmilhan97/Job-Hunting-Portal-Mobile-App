@@ -2,9 +2,9 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:job_listing_app/constants.dart';
-import 'package:job_listing_app/models/job.dart';
-import 'package:job_listing_app/screens/detail/detail_screen.dart';
+import 'package:job_hunting_app_new/constants.dart';
+import 'package:job_hunting_app_new/models/job.dart';
+import 'package:job_hunting_app_new/screens/detail/detail_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/favorites_service.dart';
@@ -41,7 +41,7 @@ class _JobCardState extends State<JobCard> {
           });
         }
       } catch (e) {
-        print('Error checking favorite status: $e');
+        // print('Error checking favorite status: $e');
       }
     }
   }
@@ -62,7 +62,7 @@ class _JobCardState extends State<JobCard> {
       setState(() {
         _isFavorited = newFavoriteStatus;
       });
-
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -70,6 +70,7 @@ class _JobCardState extends State<JobCard> {
         ),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error updating favorites. Please try again.')),
       );

@@ -15,7 +15,7 @@ class HomeSubHeader extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               height: 50.h,
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withAlpha(25),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Row(

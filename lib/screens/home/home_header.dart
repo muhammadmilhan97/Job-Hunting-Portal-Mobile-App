@@ -27,7 +27,7 @@ class HomeHeader extends StatelessWidget {
           ),
           CircleAvatar(
             radius: 24.r,
-            backgroundColor: Colors.blue.withOpacity(0.1),
+            backgroundColor: Colors.blue.withAlpha(25),
             child: Icon(Icons.person, size: 24.w, color: Colors.blue),
           ),
         ],

@@ -50,7 +50,6 @@ class HomeScreen extends StatelessWidget {
                   color: kSecondaryTextColor,
                 ),
               ),
-              // TODO: Add job listings and other features here
             ],
           ),
         ),

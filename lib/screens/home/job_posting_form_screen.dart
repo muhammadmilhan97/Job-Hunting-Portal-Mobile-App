@@ -5,7 +5,7 @@ import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
 import '../../constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import '../../services/notification_service.dart';
+import '../../services/job_service.dart';
 
 class JobPostingFormScreen extends StatefulWidget {
   final String? jobId;
@@ -34,8 +34,6 @@ class _JobPostingFormScreenState extends State<JobPostingFormScreen> {
   final List<String> _categories = ['IT', 'Education', 'Marketing', 'SEO'];
   final List<String> _genders = ['Any', 'Male', 'Female'];
   final List<String> _types = ['Full-time', 'Part-time', 'Freelance'];
-
-  // final NotificationService _notificationService = NotificationService();
 
   @override
   void initState() {
@@ -80,6 +78,7 @@ class _JobPostingFormScreenState extends State<JobPostingFormScreen> {
             .collection('users')
             .doc(user.uid)
             .get();
+        if (!mounted) return;
         final userData = userDoc.data() as Map<String, dynamic>;
         final companyName = userData['profileData']?['companyName'] ?? '';
         final companyLogoUrl = userData['profileData']?['companyLogo'] ?? '';
@@ -116,30 +115,16 @@ class _JobPostingFormScreenState extends State<JobPostingFormScreen> {
           }
         } else {
           // Create new job
-          final docRef =
-              await FirebaseFirestore.instance.collection('jobs').add(jobData);
-
-          // Send notifications to job seekers about new job
-          try {
-            // Get all job seekers
-            final jobSeekersQuery = await FirebaseFirestore.instance
-                .collection('users')
-                .where('userType', isEqualTo: 'job_seeker')
-                .get();
-
-            List<String> jobSeekerIds =
-                jobSeekersQuery.docs.map((doc) => doc.id).toList();
-
-            if (jobSeekerIds.isNotEmpty) {
-              // await _notificationService.sendNewJobNotification(
-              //   jobSeekerIds,
-              //   _titleController.text.trim(),
-              //   companyName.isNotEmpty ? companyName : 'Company',
-              // );
-            }
-          } catch (e) {
-            print('Error sending job notifications: $e');
-          }
+          await JobService().createJob(
+            title: _titleController.text.trim(),
+            company: companyName,
+            location: _locationController.text.trim(),
+            description: _descriptionController.text.trim(),
+            requirements: _requirementsController.text.trim(),
+            salary: _salaryController.text.trim(),
+            type: _selectedType,
+            employerId: user.uid,
+          );
 
           setState(() => _isLoading = false);
           if (mounted) {
@@ -151,6 +136,7 @@ class _JobPostingFormScreenState extends State<JobPostingFormScreen> {
         }
       } catch (e) {
         setState(() => _isLoading = false);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to post job: ${e.toString()}')),
         );

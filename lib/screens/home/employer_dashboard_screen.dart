@@ -29,6 +29,13 @@ class _EmployerDashboardScreenState extends State<EmployerDashboardScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Provider.of<local_auth.AuthProvider>(context, listen: false)
+            .updateProfile({});
+      }
+    });
   }
 
   @override
@@ -44,8 +51,6 @@ class _EmployerDashboardScreenState extends State<EmployerDashboardScreen>
         Provider.of<local_auth.AuthProvider>(context).userProfile;
     final companyName = userProfile?.companyName ?? 'Employer';
     final companyLogo = userProfile?.profileData['companyLogo'];
-    print(
-        'DEBUG: EmployerDashboardScreen - currentUser?.uid: \\${currentUser?.uid}');
 
     return Scaffold(
       appBar: AppBar(
@@ -126,7 +131,7 @@ class _EmployerDashboardScreenState extends State<EmployerDashboardScreen>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.08),
+                        color: Colors.grey.withAlpha(20),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -137,7 +142,7 @@ class _EmployerDashboardScreenState extends State<EmployerDashboardScreen>
                     children: [
                       CircleAvatar(
                         radius: 28.r,
-                        backgroundColor: kAccentColor.withOpacity(0.1),
+                        backgroundColor: kAccentColor.withAlpha(25),
                         backgroundImage:
                             companyLogo != null && companyLogo != ''
                                 ? NetworkImage(companyLogo)
@@ -196,7 +201,7 @@ class _EmployerDashboardScreenState extends State<EmployerDashboardScreen>
                 ),
                 SizedBox(height: 24.h),
                 Divider(
-                  color: kSecondaryTextColor.withOpacity(0.15),
+                  color: kSecondaryTextColor.withAlpha(38),
                   thickness: 1,
                   height: 1,
                   indent: 24.w,
@@ -211,7 +216,7 @@ class _EmployerDashboardScreenState extends State<EmployerDashboardScreen>
                     child: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
                           .collection('jobs')
-                          .where('postedBy',
+                          .where('employerId',
                               isEqualTo: FirebaseAuth.instance.currentUser?.uid)
                           .orderBy('timestamp', descending: true)
                           .snapshots(),
@@ -228,7 +233,7 @@ class _EmployerDashboardScreenState extends State<EmployerDashboardScreen>
                               children: [
                                 Icon(Icons.work_outline,
                                     size: 64,
-                                    color: kAccentColor.withOpacity(0.2)),
+                                    color: kAccentColor.withAlpha(51)),
                                 SizedBox(height: 16.h),
                                 Text(
                                   'Your posted jobs will appear here.',
@@ -268,7 +273,7 @@ class _EmployerDashboardScreenState extends State<EmployerDashboardScreen>
                                   borderRadius: BorderRadius.circular(16.r),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.grey.withOpacity(0.08),
+                                      color: Colors.grey.withAlpha(20),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     ),
@@ -293,8 +298,7 @@ class _EmployerDashboardScreenState extends State<EmployerDashboardScreen>
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 10, vertical: 4),
                                           decoration: BoxDecoration(
-                                            color:
-                                                kAccentColor.withOpacity(0.08),
+                                            color: kAccentColor.withAlpha(20),
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                           ),
@@ -328,16 +332,25 @@ class _EmployerDashboardScreenState extends State<EmployerDashboardScreen>
                                             size: 16,
                                             color: kSecondaryTextColor),
                                         SizedBox(width: 4.w),
-                                        Text(job['location'] ?? '',
-                                            style: kBodyTextStyle),
-                                        Spacer(),
+                                        Expanded(
+                                          child: Text(
+                                            job['location'] ?? '',
+                                            style: kBodyTextStyle,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
                                         Text('PKR',
                                             style: kBodyTextStyle.copyWith(
                                                 color: kSecondaryTextColor,
                                                 fontWeight: FontWeight.bold)),
                                         SizedBox(width: 2.w),
-                                        Text(job['salary'] ?? '',
-                                            style: kBodyTextStyle),
+                                        Flexible(
+                                          child: Text(
+                                            job['salary'] ?? '',
+                                            style: kBodyTextStyle,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ],
@@ -367,7 +380,7 @@ class _EmployerDashboardScreenState extends State<EmployerDashboardScreen>
 // JobDetailScreen to show full job details
 class JobDetailScreen extends StatelessWidget {
   final Map<String, dynamic> job;
-  const JobDetailScreen({Key? key, required this.job}) : super(key: key);
+  const JobDetailScreen({super.key, required this.job});
 
   @override
   Widget build(BuildContext context) {
@@ -409,7 +422,7 @@ class JobDetailScreen extends StatelessWidget {
                             padding: EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: kAccentColor.withOpacity(0.1),
+                              color: kAccentColor.withAlpha(25),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -559,12 +572,14 @@ class JobDetailScreen extends StatelessWidget {
                                 .collection('jobs')
                                 .doc(jobId)
                                 .delete();
+                            if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content: Text('Job deleted successfully.')),
                             );
                             Navigator.pop(context);
                           } catch (e) {
+                            if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                   content: Text(
@@ -597,8 +612,7 @@ class JobDetailScreen extends StatelessWidget {
 
 class ApplicationsListWidget extends StatelessWidget {
   final String employerId;
-  const ApplicationsListWidget({Key? key, required this.employerId})
-      : super(key: key);
+  const ApplicationsListWidget({super.key, required this.employerId});
 
   Color _statusColor(String status) {
     switch (status) {
@@ -615,8 +629,6 @@ class ApplicationsListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(
-        'DEBUG: ApplicationsListWidget - querying for employerId: $employerId');
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('applications')
@@ -668,8 +680,9 @@ class ApplicationsListWidget extends StatelessWidget {
                       TextButton(
                         onPressed: () async {
                           final url = app['cvUrl'];
-                          if (await canLaunch(url)) {
-                            await launch(url);
+                          final uri = Uri.parse(url);
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri);
                           }
                         },
                         child: const Text('View CV'),
@@ -753,6 +766,7 @@ class ApplicationsListWidget extends StatelessWidget {
                             if (result == true &&
                                 dateController.text.isNotEmpty &&
                                 linkController.text.isNotEmpty) {
+                              if (!context.mounted) return;
                               final employerName =
                                   Provider.of<local_auth.AuthProvider>(context,
                                               listen: false)
@@ -766,6 +780,7 @@ class ApplicationsListWidget extends StatelessWidget {
                                 employerName: employerName,
                                 meetingLink: linkController.text,
                               );
+                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content: Text(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../constants.dart';
 import '../../models/job.dart';
 import '../../services/favorites_service.dart';
@@ -189,7 +188,7 @@ class _JobSeekerFavoritesScreenState extends State<JobSeekerFavoritesScreen> {
                               vertical: 2.h,
                             ),
                             decoration: BoxDecoration(
-                              color: kAccentColor.withOpacity(0.1),
+                              color: kAccentColor.withAlpha(25),
                               borderRadius: BorderRadius.circular(4.r),
                             ),
                             child: Text(
